@@ -61,60 +61,52 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
   <script>
-    // 🔥 ใส่ config ของคุณตรงนี้
-    const firebaseConfig = {
-      apiKey: "AIzaSyDAB992i3lVXK-NHH5fWZFSJD2KO6ZphwE",
-      authDomain: "esp32rfid-d4ddb.firebaseapp.com",
-      databaseURL: "https://esp32rfid-d4ddb-default-rtdb.firebaseio.com",
-      projectId: "esp32rfid-d4ddb",
-      storageBucket: "esp32rfid-d4ddb.firebasestorage.app",
-      messagingSenderId: "184870018185",
-      appId: "1:184870018185:web:7cb653ac07e45718013a58",
-      measurementId: "G-74ZR3KSVMT"
-    };
+firebase.initializeApp(firebaseConfig);
 
-    firebase.initializeApp(firebaseConfig);
+const employeesRef = firebase.database().ref("employees");
+const attendanceRef = firebase.database().ref("attendance");
 
-    const employeesRef = firebase.database().ref("employees");
-    const attendanceRef = firebase.database().ref("attendance");
+let employees = {};
 
-    let employees = {};
+// โหลดรายชื่อพนักงาน
+employeesRef.on("value", (snap) => {
+  employees = snap.val() || {};
+});
 
-    // โหลดรายชื่อพนักงาน
-    employeesRef.on("value", (snap) => {
-      employees = snap.val() || {};
-    });
+// โหลดข้อมูลการสแกน
+attendanceRef.on("value", (snapshot) => {
 
-    // โหลดข้อมูลการสแกน
-    attendanceRef.on("value", (snapshot) => {
-      const tableBody = document.getElementById("tableBody");
-      tableBody.innerHTML = "";
+  const tableBody = document.getElementById("tableBody");
+  tableBody.innerHTML = "";
 
-      const data = snapshot.val();
-      if (!data) return;
+  const data = snapshot.val();
+  if (!data) return;
 
-      for (let date in data) {
-        for (let uid in data[date]) {
+  for (let uid in data) {
 
-          const record = data[date][uid];
-          const name = employees[uid]?.name || "ไม่พบชื่อ";
+    const record = data[uid];
 
-          const row = document.createElement("tr");
+    const name =
+      employees[uid]?.name ||
+      record.name ||
+      "ไม่พบชื่อ";
 
-          row.innerHTML = `
-            <td>${uid}</td>
-            <td>${name}</td>
-            <td>${date}</td>
-            <td>${record.checkin || "-"}</td>
-            <td>${record.checkout || "-"}</td>
-            <td>${record.status || "-"}</td>
-          `;
+    const row = document.createElement("tr");
 
-          tableBody.appendChild(row);
-        }
-      }
-    });
-  </script>
+    row.innerHTML = `
+      <td>${uid}</td>
+      <td>${name}</td>
+      <td>${record.date || "-"}</td>
+      <td>${record.checkin || "-"}</td>
+      <td>${record.checkout || "-"}</td>
+      <td>${record.status || "-"}</td>
+    `;
+
+    tableBody.appendChild(row);
+  }
+});
+</script>
 
 </body>
 </html>
+
