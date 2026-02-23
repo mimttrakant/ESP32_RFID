@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <title>RFID Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
+      background: #f4f4f4;
       text-align: center;
     }
 
@@ -23,17 +24,17 @@
     }
 
     th, td {
-      padding: 12px;
-      border: 1px solid #ddd;
+      border: 1px solid #ccc;
+      padding: 10px;
     }
 
     th {
-      background-color: #222;
+      background: #222;
       color: white;
     }
 
     tr:nth-child(even) {
-      background-color: #f2f2f2;
+      background: #f2f2f2;
     }
   </style>
 </head>
@@ -52,15 +53,14 @@
         <th>สถานะ</th>
       </tr>
     </thead>
-    <tbody id="tableBody">
-    </tbody>
+    <tbody id="tableBody"></tbody>
   </table>
 
-  <script type="module">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
+  <script>
     // 🔥 ใส่ config ของคุณตรงนี้
     const firebaseConfig = {
       apiKey: "AIzaSyDAB992i3lVXK-NHH5fWZFSJD2KO6ZphwE",
@@ -73,37 +73,38 @@
       measurementId: "G-74ZR3KSVMT"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+    firebase.initializeApp(firebaseConfig);
 
-    const attendanceRef = ref(db, "attendance");
+    const dbRef = firebase.database().ref("attendance");
 
-    onValue(attendanceRef, (snapshot) => {
+    dbRef.on("value", (snapshot) => {
+      const tableBody = document.getElementById("tableBody");
+      tableBody.innerHTML = "";
 
-      const table = document.getElementById("tableBody");
-      table.innerHTML = "";
+      const data = snapshot.val();
 
-      snapshot.forEach((uidSnapshot) => {
+      if (!data) return;
 
-        const uid = uidSnapshot.key;
-        const data = uidSnapshot.val();
+      for (let date in data) {          // loop วันที่
+        for (let uid in data[date]) {   // loop UID
 
-        const row = `
-          <tr>
+          const record = data[date][uid];
+
+          const row = document.createElement("tr");
+
+          row.innerHTML = `
             <td>${uid}</td>
-            <td>${data.name || "-"}</td>
-            <td>${data.date || "-"}</td>
-            <td>${data.checkin || "-"}</td>
-            <td>${data.checkout || "-"}</td>
-            <td>${data.status || "-"}</td>
-          </tr>
-        `;
+            <td>${record.name || "-"}</td>
+            <td>${date}</td>
+            <td>${record.checkin || "-"}</td>
+            <td>${record.checkout || "-"}</td>
+            <td>${record.status || "-"}</td>
+          `;
 
-        table.innerHTML += row;
-      });
-
+          tableBody.appendChild(row);
+        }
+      }
     });
-
   </script>
 
 </body>
