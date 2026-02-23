@@ -61,6 +61,16 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
   <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDAB992i3lVXK-NHH5fWZFSJD2KO6ZphwE",
+      authDomain: "esp32rfid-d4ddb.firebaseapp.com",
+      databaseURL: "https://esp32rfid-d4ddb-default-rtdb.firebaseio.com",
+      projectId: "esp32rfid-d4ddb",
+      storageBucket: "esp32rfid-d4ddb.firebasestorage.app",
+      messagingSenderId: "184870018185",
+      appId: "1:184870018185:web:7cb653ac07e45718013a58",
+      measurementId: "G-74ZR3KSVMT"
+    };
 firebase.initializeApp(firebaseConfig);
 
 const employeesRef = firebase.database().ref("employees");
@@ -109,4 +119,5 @@ attendanceRef.on("value", (snapshot) => {
 
 </body>
 </html>
+
 
