@@ -19,7 +19,7 @@
     table {
       margin: 30px auto;
       border-collapse: collapse;
-      width: 90%;
+      width: 95%;
       background: white;
     }
 
@@ -75,26 +75,35 @@
 
     firebase.initializeApp(firebaseConfig);
 
-    const dbRef = firebase.database().ref("attendance");
+    const employeesRef = firebase.database().ref("employees");
+    const attendanceRef = firebase.database().ref("attendance");
 
-    dbRef.on("value", (snapshot) => {
+    let employees = {};
+
+    // โหลดรายชื่อพนักงาน
+    employeesRef.on("value", (snap) => {
+      employees = snap.val() || {};
+    });
+
+    // โหลดข้อมูลการสแกน
+    attendanceRef.on("value", (snapshot) => {
       const tableBody = document.getElementById("tableBody");
       tableBody.innerHTML = "";
 
       const data = snapshot.val();
-
       if (!data) return;
 
-      for (let date in data) {          // loop วันที่
-        for (let uid in data[date]) {   // loop UID
+      for (let date in data) {
+        for (let uid in data[date]) {
 
           const record = data[date][uid];
+          const name = employees[uid]?.name || "ไม่พบชื่อ";
 
           const row = document.createElement("tr");
 
           row.innerHTML = `
             <td>${uid}</td>
-            <td>${record.name || "-"}</td>
+            <td>${name}</td>
             <td>${date}</td>
             <td>${record.checkin || "-"}</td>
             <td>${record.checkout || "-"}</td>
